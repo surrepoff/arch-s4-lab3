@@ -6,6 +6,8 @@
 //cursor_visible=\E[?25h\E[?8c
 
 #include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 enum colors
 {
@@ -14,20 +16,36 @@ enum colors
 
 int mt_clrscr(void)
 {
+    printf("\033[H\E[J");
+    return 0;
 }
 
-int mt_gotoXY (int, int)
+int mt_gotoXY (int x, int y)
 {
+    printf("\033[%d;%dH", y, x);
+    return 0;
 }
 
 int mt_getscreensize (int * rows, int * cols)
 {
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    
+    if (w.ws_row<= 0 || w.ws_col <= 0) return -1;
+    
+    *rows = w.ws_row;
+    *cols = w.ws_col;
+    return 0;
 }
 
-int mt_setfgcolor (enum colors)
+int mt_setfgcolor (int color)
 {
+    printf("\033[3%dm", color);
+    return 0;
 }
 
-int mt_setbgcolor (enum colors)
+int mt_setbgcolor (int color)
 {
+    printf("\033[4%dm", color);
+    return 0;
 }
